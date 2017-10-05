@@ -293,6 +293,7 @@ function s:Init()
     call s:MapAnyKeys()
     " map 一些特殊的键
     inoremap<buffer> <Space> <C-R>=<SID>SmartSpace()<CR>
+    inoremap<buffer> ; <C-R>=<SID>SmartSC()<CR>
     inoremap<buffer> <BS> <C-R>=<SID>SmartBack()<CR>
     inoremap<buffer> <CR> <C-R>=<SID>SmartEnter()<CR>
     inoremap<buffer> <C-\> <C-R>=<SID>ToggleChinesePunc()<CR>
@@ -333,6 +334,7 @@ function s:Exit()
     call s:UnMapAnyKeys()
     " 还原特殊键的 map
     iunmap<buffer> <Space>
+    iunmap<buffer> ;
     iunmap<buffer> <BS>
     iunmap<buffer> <CR>
     iunmap<buffer> <C-\>
@@ -341,7 +343,7 @@ function s:Exit()
     " 还原标点的 map
     iunmap<buffer> ,
     iunmap<buffer> .
-    iunmap<buffer> ;
+    "iunmap<buffer> ;
     iunmap<buffer> :
     iunmap<buffer> ?
     iunmap<buffer> \
@@ -428,6 +430,49 @@ function s:RefreshMatch()
     let s:matchFrom = s:GetMatchFrom(temstr[from : to])
 endfunction
 
+function <SID>SmartSC()
+    ";在输入过程中的行为
+    let semicolon = s:SCsequense
+    let lineNum = line('.')
+    let columnNum = col('.') - 1
+    let temstr = getline(lineNum)
+    let from = columnNum - s:typeLen
+    let to = columnNum - 1
+    let patterns = "^" . temstr[from : to]
+    let nextmatch =  match(g:bx_im_table, patterns, s:matchFrom+1)
+    let matchword = ""
+    "echoerr nextmatch
+    if pumvisible() && nextmatch > -1
+        " 上屏第二个匹配
+        let matchword = split(g:bx_im_table[nextmatch])[1]
+
+        if s:typeLen == 1
+            let semicolon = "\<C-E>\<BS>" . matchword
+        elseif s:typeLen == 2
+            let semicolon = "\<C-E>\<BS>\<BS>" . matchword
+        elseif s:typeLen == 3
+            let semicolon = "\<C-E>\<BS>\<BS>\<BS>" . matchword
+        elseif s:typeLen == 4
+            let semicolon = "\<C-E>\<BS>\<BS>\<BS>\<BS>" . matchword
+        endif
+
+    elseif pumvisible() 
+        " 如果只有一个匹配，将其上屏，并加个分号
+        let semicolon = "\<C-Y>" . s:SCsequense
+    elseif s:typeLen == 1
+        let semicolon = "\<BS>" . matchword
+    elseif s:typeLen == 2
+        let semicolon = "\<BS>\<BS>" . matchword
+    elseif s:typeLen == 3
+        let semicolon = "\<BS>\<BS>\<BS>" . matchword
+    elseif s:typeLen == 4
+        let semicolon = "\<BS>\<BS>\<BS>\<BS>" . matchword
+    endif
+    let s:typeLen = 0
+    silent!exe 'silent!return "' . semicolon . '"'
+
+endfunction
+
 function <SID>SmartSpace()
     "<Space>在输入过程中的行为
     let space = ' '
@@ -495,7 +540,8 @@ function s:MapChinesePunc()
     let b:chinesePunc = 1
     inoremap<buffer> , <C-R>=<SID>PuncIn()<CR>，
     inoremap<buffer> . <C-R>=<SID>PuncIn()<CR>。
-    inoremap<buffer> ; <C-R>=<SID>PuncIn()<CR>；
+    "inoremap<buffer> ; <C-R>=<SID>PuncIn()<CR>；
+    let s:SCsequense="；"
     inoremap<buffer> : <C-R>=<SID>PuncIn()<CR>：
     inoremap<buffer> ? <C-R>=<SID>PuncIn()<CR>？
     inoremap<buffer> \ <C-R>=<SID>PuncIn()<CR>、
@@ -524,7 +570,8 @@ function s:UnMapChinesePunc()
     let b:chinesePunc = 0
     inoremap<buffer> , <C-R>=<SID>PuncIn()<CR>,
     inoremap<buffer> . <C-R>=<SID>PuncIn()<CR>.
-    inoremap<buffer> ; <C-R>=<SID>PuncIn()<CR>;
+    "inoremap<buffer> ; <C-R>=<SID>PuncIn()<CR>;
+    let s:SCsequense=";"
     inoremap<buffer> : <C-R>=<SID>PuncIn()<CR>:
     inoremap<buffer> ? <C-R>=<SID>PuncIn()<CR>?
     inoremap<buffer> \ <C-R>=<SID>PuncIn()<CR>\
