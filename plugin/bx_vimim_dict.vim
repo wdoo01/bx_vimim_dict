@@ -443,8 +443,8 @@ function <SID>SmartSC()
     let matchword = ""
     let currentmatches = split(g:bx_im_table[s:matchFrom])
     let l = len(currentmatches)
-    echoerr nextmatch
-    echoerr l
+    "echoerr nextmatch
+    "echoerr l
     if pumvisible() && l >2 
         " 上屏第二个匹配
         let matchword = currentmatches[2]
