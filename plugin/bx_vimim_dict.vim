@@ -365,6 +365,11 @@ function s:Exit()
     iunmap<buffer> )
     iunmap<buffer> '
     iunmap<buffer> "
+    iunmap<buffer> 1
+    iunmap<buffer> 2
+    iunmap<buffer> 3
+    iunmap<buffer> 4
+    iunmap<buffer> 5
     return ''
 endfunction
 
@@ -578,6 +583,11 @@ function s:MapChinesePunc()
     inoremap<buffer> } <C-R>=<SID>PuncIn()<CR>』
     inoremap<buffer> ' <C-R>=<SID>PuncIn()<CR><C-R>=<SID>ToggleChineseQuote("'")<CR>
     inoremap<buffer> " <C-R>=<SID>PuncIn()<CR><C-R>=<SID>ToggleChineseQuote('"')<CR>
+    inoremap<buffer> 1 <C-R>=<SID>PuncIn()<CR>1
+    inoremap<buffer> 2 <C-R>=<SID>PuncIn()<CR>2
+    inoremap<buffer> 3 <C-R>=<SID>PuncIn()<CR>3
+    inoremap<buffer> 4 <C-R>=<SID>PuncIn()<CR>4
+    inoremap<buffer> 5 <C-R>=<SID>PuncIn()<CR>5
 endfunction
 
 function s:UnMapChinesePunc()
@@ -608,6 +618,11 @@ function s:UnMapChinesePunc()
     inoremap<buffer> } <C-R>=<SID>PuncIn()<CR>}
     inoremap<buffer> ' <C-R>=<SID>PuncIn()<CR>'
     inoremap<buffer> " <C-R>=<SID>PuncIn()<CR>"
+    inoremap<buffer> 1 <C-R>=<SID>PuncIn()<CR>1
+    inoremap<buffer> 2 <C-R>=<SID>PuncIn()<CR>2
+    inoremap<buffer> 3 <C-R>=<SID>PuncIn()<CR>3
+    inoremap<buffer> 4 <C-R>=<SID>PuncIn()<CR>4
+    inoremap<buffer> 5 <C-R>=<SID>PuncIn()<CR>5
 endfunction
 
 function <SID>ToggleChinesePunc()
