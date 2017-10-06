@@ -438,47 +438,35 @@ endfunction
 function <SID>SmartSC()
     ";在输入过程中的行为
     let semicolon = s:SCsequense
-    let lineNum = line('.')
-    let columnNum = col('.') - 1
-    let temstr = getline(lineNum)
-    let from = columnNum - s:typeLen
-    let to = columnNum - 1
-    let patterns = "^" . temstr[from : to]
-    let nextmatch =  match(g:bx_im_table, patterns, s:matchFrom+1)
-    let matchword = ""
-    let currentmatches = split(g:bx_im_table[s:matchFrom])
-    let l = len(currentmatches)
-    "echoerr nextmatch
-    "echoerr l
-    if pumvisible() && l >2 
-        " 上屏第二个匹配
-        let matchword = currentmatches[2]
+    if pumvisible()
+        let lineNum = line('.')
+        let columnNum = col('.') - 1
+        let temstr = getline(lineNum)
+        let from = columnNum - s:typeLen
+        let to = columnNum - 1
+        let res = CVimIM_Dict(0,temstr[from : to])
+        let undupres=filter(copy(res), 'index(res, v:val, v:key+1)==-1')
+        let matchword = ""
+        let l = len(undupres)
+        if l >1
+            " 上屏第二个匹配
+            let matchword = undupres[1]
 
-        if s:typeLen == 1
-            let semicolon = "\<C-E>\<BS>" . matchword
-        elseif s:typeLen == 2
-            let semicolon = "\<C-E>\<BS>\<BS>" . matchword
-        elseif s:typeLen == 3
-            let semicolon = "\<C-E>\<BS>\<BS>\<BS>" . matchword
-        elseif s:typeLen == 4
-            let semicolon = "\<C-E>\<BS>\<BS>\<BS>\<BS>" . matchword
-        endif
-    elseif pumvisible() && nextmatch > -1
-        let matchword = split(g:bx_im_table[nextmatch])[1]
-
-        if s:typeLen == 1
-            let semicolon = "\<C-E>\<BS>" . matchword
-        elseif s:typeLen == 2
-            let semicolon = "\<C-E>\<BS>\<BS>" . matchword
-        elseif s:typeLen == 3
-            let semicolon = "\<C-E>\<BS>\<BS>\<BS>" . matchword
-        elseif s:typeLen == 4
-            let semicolon = "\<C-E>\<BS>\<BS>\<BS>\<BS>" . matchword
-        endif
-
-    elseif pumvisible() 
-        " 如果只有一个匹配，将其上屏，并加个分号
-        let semicolon = "\<C-Y>" . s:SCsequense
+            if s:typeLen == 1
+                let semicolon = "\<C-E>\<BS>" . matchword
+            elseif s:typeLen == 2
+                let semicolon = "\<C-E>\<BS>\<BS>" . matchword
+            elseif s:typeLen == 3
+                let semicolon = "\<C-E>\<BS>\<BS>\<BS>" . matchword
+            elseif s:typeLen == 4
+                let semicolon = "\<C-E>\<BS>\<BS>\<BS>\<BS>" . matchword
+            endif
+        else
+            " 如果只有一个匹配，将其上屏，并加个分号
+            let semicolon = "\<C-Y>" . s:SCsequense
+        end
+    elseif s:typeLen == 0
+        " do nothing here
     elseif s:typeLen == 1
         let semicolon = "\<BS>" . matchword
     elseif s:typeLen == 2
