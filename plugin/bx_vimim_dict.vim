@@ -441,9 +441,24 @@ function <SID>SmartSC()
     let patterns = "^" . temstr[from : to]
     let nextmatch =  match(g:bx_im_table, patterns, s:matchFrom+1)
     let matchword = ""
-    "echoerr nextmatch
-    if pumvisible() && nextmatch > -1
+    let currentmatches = split(g:bx_im_table[s:matchFrom])
+    let l = len(currentmatches)
+    echoerr nextmatch
+    echoerr l
+    if pumvisible() && l >2 
         " 上屏第二个匹配
+        let matchword = currentmatches[2]
+
+        if s:typeLen == 1
+            let semicolon = "\<C-E>\<BS>" . matchword
+        elseif s:typeLen == 2
+            let semicolon = "\<C-E>\<BS>\<BS>" . matchword
+        elseif s:typeLen == 3
+            let semicolon = "\<C-E>\<BS>\<BS>\<BS>" . matchword
+        elseif s:typeLen == 4
+            let semicolon = "\<C-E>\<BS>\<BS>\<BS>\<BS>" . matchword
+        endif
+    elseif pumvisible() && nextmatch > -1
         let matchword = split(g:bx_im_table[nextmatch])[1]
 
         if s:typeLen == 1
