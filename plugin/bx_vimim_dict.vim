@@ -445,12 +445,15 @@ function <SID>SmartSC()
         let from = columnNum - s:typeLen
         let to = columnNum - 1
         let res = CVimIM_Dict(0,temstr[from : to])
-        let undupres=filter(copy(res), 'index(res, v:val, v:key+1)==-1')
+        "let undupres=filter(copy(res), 'index(res, v:val, v:key+1)==-1')
+        let undupres = uniq(copy(res))
         let matchword = ""
         let l = len(undupres)
         if l >1
             " 上屏第二个匹配
             let matchword = undupres[1]
+            "echoerr join(res)
+            "echoerr join(undupres)
 
             if s:typeLen == 1
                 let semicolon = "\<C-E>\<BS>" . matchword
@@ -468,13 +471,13 @@ function <SID>SmartSC()
     elseif s:typeLen == 0
         " do nothing here
     elseif s:typeLen == 1
-        let semicolon = "\<BS>" . matchword
+        let semicolon = "\<BS>" 
     elseif s:typeLen == 2
-        let semicolon = "\<BS>\<BS>" . matchword
+        let semicolon = "\<BS>\<BS>" 
     elseif s:typeLen == 3
-        let semicolon = "\<BS>\<BS>\<BS>" . matchword
+        let semicolon = "\<BS>\<BS>\<BS>" 
     elseif s:typeLen == 4
-        let semicolon = "\<BS>\<BS>\<BS>\<BS>" . matchword
+        let semicolon = "\<BS>\<BS>\<BS>\<BS>" 
     endif
     let s:typeLen = 0
     silent!exe 'silent!return "' . semicolon . '"'
