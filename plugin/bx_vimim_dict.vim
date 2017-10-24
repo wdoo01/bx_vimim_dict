@@ -40,6 +40,13 @@ else
     let g:bm_im_charfirst = [12, 525, 3164, 4305, 7039, 7395, 8945, 11224, 13796, 15856, 18618, 20099, 22618, 24574, 25849, 25922, 27358, 29211, 30292, 31529, 33781, 36378, 38819, 40376, 42911, 46104]
 endif
 
+
+if !exists('g:bx_im_four_code')
+    let g:bx_im_four_code=0
+endif
+"if !exists('g:bx_im_tex_helpers')
+    "let g:bx_im_tex_helpers=0
+"endif
 let s:path = expand("<sfile>:p:h") . "/"
 inoremap<silent><expr> <C-L> <SID>Toggle()
 
@@ -375,6 +382,9 @@ endfunction
 
 function <SID>AnyKey(key)
     "[a-z]在输入过程中的行为
+    if s:typeLen == -2
+        return ''
+    endif
     let s:typeLen += 1
     if s:typeLen > 1
         "考虑在按了 <C-N> <C-P> 后继续输入的情况
@@ -390,32 +400,42 @@ function <SID>AnyKey(key)
         silent!exe 'silent!return "' . temp . '"'
     endif
     if s:typeLen == 5
-        "限制4码输入在这里实现.
-        "要考虑前4码是否有匹配两种情况.
-        let p = getpos('.')
-        call setpos('.', [p[0], p[1], p[2] - 1, p[3]])
-        let s:typeLen -= 1
-        call s:RefreshMatch()
-        "前4码肯定有匹配, 则先保存前4码的第一个匹配, 用这个匹配去
-        "代替前4码, 再重新匹配第5码
-        let word = split(g:bx_im_table[s:matchFrom])[1]
-        "这里不能是四个<BS>, 不知道为什么!
-        let temp = "\<Left>\<Del>\<BS>\<BS>\<BS>" . word . "\<Right>\<C-X>\<C-U>\<C-P>\<Down>"
-        let s:matchFrom = s:GetMatchFrom(a:key)
-        let s:typeLen = 1
-        silent!exe 'silent!return "' . temp . '"'
+            "限制4码输入在这里实现.
+            "要考虑前4码是否有匹配两种情况.
+            let p = getpos('.')
+            call setpos('.', [p[0], p[1], p[2] - 1, p[3]])
+            let s:typeLen -= 1
+            call s:RefreshMatch()
+            "前4码肯定有匹配, 则先保存前4码的第一个匹配, 用这个匹配去
+            "代替前4码, 再重新匹配第5码
+            let word = split(g:bx_im_table[s:matchFrom])[1]
+            "这里不能是四个<BS>, 不知道为什么!
+            let temp = "\<Left>\<Del>\<BS>\<BS>\<BS>" . word . "\<Right>\<C-X>\<C-U>\<C-P>\<Down>"
+            let s:matchFrom = s:GetMatchFrom(a:key)
+            let s:typeLen = 1
+            silent!exe 'silent!return "' . temp . '"'
     endif
     call s:RefreshMatch()
     if s:matchFrom < 0
-        "不能匹配的情况, 只可能出现在3码或4码
-        "是否要实现如果3码无匹配则不能输入4码呢?
-        "TODO: 3码无匹配则不能输入4码, 或无匹配自动删除.
-        let temp = "\<Del>\<C-X>\<C-U>\<C-P>\<Down>"
-        let s:typeLen -= 1
-        "要重新定位光标才正确取码
-        let p = getpos('.')
-        call setpos('.', [p[0], p[1], p[2] - 1, p[3]])
-        call s:RefreshMatch()
+        if g:bx_im_four_code 
+            "不能匹配的情况, 只可能出现在3码或4码
+            "是否要实现如果3码无匹配则不能输入4码呢?
+            "TODO: 3码无匹配则不能输入4码, 或无匹配自动删除.
+            let temp = "\<Del>\<C-X>\<C-U>\<C-P>\<Down>"
+            let s:typeLen -= 1
+            "要重新定位光标才正确取码
+            let p = getpos('.')
+            call setpos('.', [p[0], p[1], p[2] - 1, p[3]])
+            call s:RefreshMatch()
+        else
+            if pumvisible()
+                let enter = "\<C-E>"
+            else
+                let enter = ""
+            endif
+            let s:typeLen = -2 " 暂时停止取码
+            silent!exe 'silent!return "' . enter . '"'
+        endif
     else
         let temp = "\<C-X>\<C-U>\<C-P>\<Down>"
     endif
@@ -563,8 +583,13 @@ function s:MapChinesePunc()
     inoremap<buffer> _ <C-R>=<SID>PuncIn()<CR>——
     inoremap<buffer> # <C-R>=<SID>PuncIn()<CR>＃
     inoremap<buffer> % <C-R>=<SID>PuncIn()<CR>％
-    inoremap<buffer> $ <C-R>=<SID>PuncIn()<CR>￥
-    inoremap<buffer> ` <C-R>=<SID>PuncIn()<CR>`
+    if exists('b:bx_im_tex_helpers') && b:bx_im_tex_helpers
+        inoremap<buffer> $ <C-R>=<SID>Toggle()<CR>$
+        inoremap<buffer> ` <C-R>=<SID>Toggle()<CR>`
+    else
+        inoremap<buffer> $ <C-R>=<SID>PuncIn()<CR>￥
+        inoremap<buffer> ` <C-R>=<SID>PuncIn()<CR>`
+    endif
     inoremap<buffer> ~ <C-R>=<SID>PuncIn()<CR>～
     inoremap<buffer> < <C-R>=<SID>PuncIn()<CR>《
     inoremap<buffer> > <C-R>=<SID>PuncIn()<CR>》
@@ -598,8 +623,13 @@ function s:UnMapChinesePunc()
     inoremap<buffer> _ <C-R>=<SID>PuncIn()<CR>_
     inoremap<buffer> # <C-R>=<SID>PuncIn()<CR>#
     inoremap<buffer> % <C-R>=<SID>PuncIn()<CR>%
-    inoremap<buffer> $ <C-R>=<SID>PuncIn()<CR>$
-    inoremap<buffer> ` <C-R>=<SID>PuncIn()<CR>`
+    if exists('b:bx_im_tex_helpers') && b:bx_im_tex_helpers
+        inoremap<buffer> $ <C-R>=<SID>Toggle()<CR>$
+        inoremap<buffer> ` <C-R>=<SID>Toggle()<CR>`
+    else
+        inoremap<buffer> $ <C-R>=<SID>PuncIn()<CR>$
+        inoremap<buffer> ` <C-R>=<SID>PuncIn()<CR>`
+    endif
     inoremap<buffer> ~ <C-R>=<SID>PuncIn()<CR>~
     inoremap<buffer> < <C-R>=<SID>PuncIn()<CR><
     inoremap<buffer> > <C-R>=<SID>PuncIn()<CR>>
