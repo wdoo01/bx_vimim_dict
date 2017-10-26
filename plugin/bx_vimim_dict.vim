@@ -328,8 +328,9 @@ function s:Init()
     if !exists('g:bx_im_table')
         let g:bx_im_table = s:GetTable()
     endif
-    if !exists('g:bx_im_charfirst')
-        let g:bx_im_charfirst = s:GetIndex()
+    if !exists('g:bm_im_charfirst')
+        let g:bm_im_charfirst = s:GetIndex()
+    endif
     if !exists('b:chinesePunc')
         " 标点的状态要在中英文间保持
          let b:chinesePunc = 1
