@@ -34,15 +34,17 @@ scriptencoding utf-8
 " 是否使用五笔
 if exists('g:bx_im_wubi_used') && g:bx_im_wubi_used
     let g:bx_im_code_fn = 'bx_vimim_wubi.txt'
-    let g:bm_im_charfirst = [1, 3477, 5016, 6371, 9569, 11098, 14620, 18428, 19911, 23828, 26116, 28500, 30475, 32402, 34864, 36276, 38711, 42226, 46442, 49453, 53687, 57072, 58912, 62805, 65013]
+    let g:bx_im_charfist_fn = 'bx_vimim_wubi_ind.txt'
+    "let g:bm_im_charfirst = [1, 3477, 5016, 6371, 9569, 11098, 14620, 18428, 19911, 23828, 26116, 28500, 30475, 32402, 34864, 36276, 38711, 42226, 46442, 49453, 53687, 57072, 58912, 62805, 65013]
 else
     let g:bx_im_code_fn = 'bx_vimim_xiaohe.txt'
-    let g:bm_im_charfirst = [12, 525, 3164, 4305, 7039, 7395, 8945, 11224, 13796, 15856, 18618, 20099, 22618, 24574, 25849, 25922, 27358, 29211, 30292, 31529, 33781, 36378, 38819, 40376, 42911, 46104]
+    let g:bx_im_charfist_fn = 'bx_vimim_xiaohe_ind.txt'
+    "let g:bm_im_charfirst = [12, 525, 3164, 4305, 7039, 7395, 8945, 11224, 13796, 15856, 18618, 20099, 22618, 24574, 25849, 25922, 27358, 29211, 30292, 31529, 33781, 36378, 38819, 40376, 42911, 46104]
 endif
 
 
 if !exists('g:bx_im_four_code')
-    let g:bx_im_four_code=0
+    let g:bx_im_four_code=1
 endif
 "if !exists('g:bx_im_tex_helpers')
     "let g:bx_im_tex_helpers=0
@@ -108,6 +110,31 @@ else
     endif
 endif
 endfunction
+function BxIMRenew()
+    let g:bx_im_table = s:GetTable()
+    let g:bx_im_charfirst = s:RenewCharFirstIndexFile()
+    echo 'Done!'
+endfunction
+function s:RenewCharFirstIndexFile()
+    let indFile = s:path . g:bx_im_charfist_fn
+    let ind=[]
+    let atoz = []
+    if exists('g:bx_im_wubi_used') && g:bx_im_wubi_used
+        let atoz = map(range(char2nr('a'),char2nr('y')),'nr2char(v:val)')
+        " no 'z' in wubi
+        " untested
+    else
+        let atoz = map(range(char2nr('a'),char2nr('z')),'nr2char(v:val)')
+    endif
+    let lastpos = 0
+    for letter in atoz
+        let pattern = '^'. letter
+        let lastpos = match(g:bx_im_table,pattern,lastpos)
+        call add(ind,lastpos+1)
+    endfor
+    call writefile(ind,indFile)
+    return ind
+endfunction
 
 function s:GetTable()
     "读取码表
@@ -118,6 +145,22 @@ function s:GetTable()
         echo 'Counld not open the table file `' . tableFile . '`'
     endtry
     return table
+endfunction
+
+function s:GetIndex()
+    let indFile = s:path . g:bx_im_charfist_fn
+    try
+        let ind=[]
+        let indchar = readfile(indFile)
+        for line in indchar
+            call add(ind,str2nr(line))
+        endfor
+    catch /E484:/
+        echo 'Counld not open the table file `' . indFile . '`'
+        echo 'Generate '. indFile. ' again.'
+        ind = RenewCharFirstIndexFile()
+    endtry
+    return ind
 endfunction
 
 function s:GetMatchFrom(keyboard)
@@ -285,6 +328,8 @@ function s:Init()
     if !exists('g:bx_im_table')
         let g:bx_im_table = s:GetTable()
     endif
+    if !exists('g:bx_im_charfirst')
+        let g:bx_im_charfirst = s:GetIndex()
     if !exists('b:chinesePunc')
         " 标点的状态要在中英文间保持
          let b:chinesePunc = 1
@@ -584,8 +629,8 @@ function s:MapChinesePunc()
     inoremap<buffer> # <C-R>=<SID>PuncIn()<CR>＃
     inoremap<buffer> % <C-R>=<SID>PuncIn()<CR>％
     if exists('b:bx_im_tex_helpers') && b:bx_im_tex_helpers
-        inoremap<buffer> $ <C-R>=<SID>Toggle()<CR>$
-        inoremap<buffer> ` <C-R>=<SID>Toggle()<CR>`
+        inoremap<buffer> $ <C-R>=<SID>PuncIn()<CR><C-R>=<SID>Toggle()<CR>$
+        inoremap<buffer> ` <C-R>=<SID>PuncIn()<CR><C-R>=<SID>Toggle()<CR>`
     else
         inoremap<buffer> $ <C-R>=<SID>PuncIn()<CR>￥
         inoremap<buffer> ` <C-R>=<SID>PuncIn()<CR>`
@@ -624,8 +669,8 @@ function s:UnMapChinesePunc()
     inoremap<buffer> # <C-R>=<SID>PuncIn()<CR>#
     inoremap<buffer> % <C-R>=<SID>PuncIn()<CR>%
     if exists('b:bx_im_tex_helpers') && b:bx_im_tex_helpers
-        inoremap<buffer> $ <C-R>=<SID>Toggle()<CR>$
-        inoremap<buffer> ` <C-R>=<SID>Toggle()<CR>`
+        inoremap<buffer> $ <C-R>=<SID>PuncIn()<CR><C-R>=<SID>Toggle()<CR>$
+        inoremap<buffer> ` <C-R>=<SID>PuncIn()<CR><C-R>=<SID>Toggle()<CR>`
     else
         inoremap<buffer> $ <C-R>=<SID>PuncIn()<CR>$
         inoremap<buffer> ` <C-R>=<SID>PuncIn()<CR>`
