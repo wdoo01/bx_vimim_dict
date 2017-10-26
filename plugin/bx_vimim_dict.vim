@@ -158,7 +158,7 @@ function s:GetIndex()
     catch /E484:/
         echo 'Counld not open the table file `' . indFile . '`'
         echo 'Generate '. indFile. ' again.'
-        ind = RenewCharFirstIndexFile()
+        let ind = s:RenewCharFirstIndexFile()
     endtry
     return ind
 endfunction
