@@ -621,7 +621,6 @@ function s:MapChinesePunc()
     let s:SCsequense="；"
     inoremap<buffer> : <C-R>=<SID>PuncIn()<CR>：
     inoremap<buffer> ? <C-R>=<SID>PuncIn()<CR>？
-    inoremap<buffer> \ <C-R>=<SID>PuncIn()<CR>、
     inoremap<buffer> / <C-R>=<SID>PuncIn()<CR>/
     inoremap<buffer> ! <C-R>=<SID>PuncIn()<CR>！
     inoremap<buffer> @ <C-R>=<SID>PuncIn()<CR>・
@@ -632,9 +631,11 @@ function s:MapChinesePunc()
     if exists('b:bx_im_tex_helpers') && b:bx_im_tex_helpers
         inoremap<buffer> $ <C-R>=<SID>PuncIn()<CR><C-R>=<SID>Toggle()<CR>$
         inoremap<buffer> ` <C-R>=<SID>PuncIn()<CR><C-R>=<SID>Toggle()<CR>`
+        inoremap<buffer> \ <C-R>=<SID>PuncIn()<CR><C-R>=<SID>Toggle()<CR>\
     else
         inoremap<buffer> $ <C-R>=<SID>PuncIn()<CR>￥
         inoremap<buffer> ` <C-R>=<SID>PuncIn()<CR>`
+    inoremap<buffer> \ <C-R>=<SID>PuncIn()<CR>、
     endif
     inoremap<buffer> ~ <C-R>=<SID>PuncIn()<CR>～
     inoremap<buffer> < <C-R>=<SID>PuncIn()<CR>《
@@ -661,7 +662,7 @@ function s:UnMapChinesePunc()
     let s:SCsequense=";"
     inoremap<buffer> : <C-R>=<SID>PuncIn()<CR>:
     inoremap<buffer> ? <C-R>=<SID>PuncIn()<CR>?
-    inoremap<buffer> \ <C-R>=<SID>PuncIn()<CR>\
+    "inoremap<buffer> \ <C-R>=<SID>PuncIn()<CR>\
     inoremap<buffer> / <C-R>=<SID>PuncIn()<CR>/
     inoremap<buffer> ! <C-R>=<SID>PuncIn()<CR>!
     inoremap<buffer> @ <C-R>=<SID>PuncIn()<CR>@
@@ -672,9 +673,11 @@ function s:UnMapChinesePunc()
     if exists('b:bx_im_tex_helpers') && b:bx_im_tex_helpers
         inoremap<buffer> $ <C-R>=<SID>PuncIn()<CR><C-R>=<SID>Toggle()<CR>$
         inoremap<buffer> ` <C-R>=<SID>PuncIn()<CR><C-R>=<SID>Toggle()<CR>`
+        inoremap<buffer> \ <C-R>=<SID>PuncIn()<CR><C-R>=<SID>Toggle()<CR>\
     else
         inoremap<buffer> $ <C-R>=<SID>PuncIn()<CR>$
         inoremap<buffer> ` <C-R>=<SID>PuncIn()<CR>`
+        inoremap<buffer> \ <C-R>=<SID>PuncIn()<CR>\
     endif
     inoremap<buffer> ~ <C-R>=<SID>PuncIn()<CR>~
     inoremap<buffer> < <C-R>=<SID>PuncIn()<CR><
